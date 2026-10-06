@@ -1,0 +1,17 @@
+export type Product = { id:string; name:string; category:string; brand:string; price:number; oldPrice?:number; rating:number; reviews:number; badge?:string; image:string; description:string; colors:string[] };
+export const products: Product[] = [
+ {id:'aura-headphones',name:'Aura Noise-Cancelling Headphones',category:'Electronics',brand:'SONA',price:129,oldPrice:169,rating:4.9,reviews:284,badge:'Best seller',image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85',description:'Immersive sound, adaptive noise cancellation, and a softly sculpted all-day fit.',colors:['Midnight','Sand','Cloud']},
+ {id:'halo-lamp',name:'Halo Portable Table Lamp',category:'Home & Living',brand:'LUMA',price:78,rating:4.8,reviews:91,badge:'New',image:'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85',description:'Warm, dimmable light with a 14-hour rechargeable battery.',colors:['Ivory','Graphite']},
+ {id:'form-tote',name:'Form Everyday Tote',category:'Accessories',brand:'FORM',price:94,rating:4.7,reviews:153,badge:'Trending',image:'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=900&q=85',description:'A refined carryall, thoughtfully organized for every day.',colors:['Espresso','Stone','Black']},
+ {id:'cloud-set',name:'Cloud Recovery Set',category:'Beauty',brand:'MIRA',price:42,oldPrice:56,rating:4.9,reviews:412,badge:'Save 25%',image:'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=85',description:'Four calming essentials to turn a routine into a ritual.',colors:['Default']},
+ {id:'nova-speaker',name:'Nova Mini Speaker',category:'Electronics',brand:'SONA',price:69,rating:4.6,reviews:78,badge:'Limited',image:'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=85',description:'Big, balanced sound in a pocket-ready silhouette.',colors:['Blue','Coral','Black']},
+ {id:'arc-chair',name:'Arc Lounge Chair',category:'Home & Living',brand:'COVE',price:249,rating:4.8,reviews:66,image:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=85',description:'A relaxed modern form made for slow mornings and long reads.',colors:['Oat','Moss']},
+ {id:'line-watch',name:'Line Chronograph Watch',category:'Lifestyle',brand:'NORTH',price:158,oldPrice:189,rating:4.7,reviews:134,image:'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=900&q=85',description:'A precise, pared-back timepiece for the everyday.',colors:['Silver','Black']},
+ {id:'motion-shoe',name:'Motion Runner',category:'Fashion',brand:'MOTION',price:112,rating:4.9,reviews:236,badge:'New',image:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85',description:'Responsive cushioning meets a clean, confident profile.',colors:['Ember','White']},
+];
+export const categories = [
+ ['Fashion','Refined pieces for your every day','https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=700&q=80'],
+ ['Electronics','Beautiful technology that simply works','https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=700&q=80'],
+ ['Beauty','Small rituals with a visible difference','https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=700&q=80'],
+ ['Home & Living','Objects that make home feel more yours','https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=700&q=80'],
+];

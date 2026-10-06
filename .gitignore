@@ -3,6 +3,9 @@
 
 # Next.js build output
 /.next/
+/.next-dev/
+/.next-prod/
+/.next-cache-backup-*/
 /out/
 
 # production output

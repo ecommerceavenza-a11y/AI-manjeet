@@ -2,20 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
-* { border-color: rgb(255 255 255 / 0.1); }
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { background: #0a0a0a; color: #fff; overflow-x: hidden; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-::selection { background: #3b82f6; color: white; }
-.mesh { background: radial-gradient(circle at 17% 20%, rgba(59,130,246,.18), transparent 26%), radial-gradient(circle at 84% 5%, rgba(139,92,246,.15), transparent 30%), #0a0a0a; }
-.grid-bg { background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px); background-size: 52px 52px; mask-image: linear-gradient(to bottom, black, transparent 90%); }
-.glass { background: rgba(17,24,39,.68); border: 1px solid rgba(255,255,255,.1); box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 20px 80px rgba(0,0,0,.25); backdrop-filter: blur(18px); }
-.glow { box-shadow: 0 0 60px rgba(59,130,246,.24); }
-.section { @apply mx-auto max-w-7xl px-5 sm:px-8 lg:px-10; }
-.eyebrow { @apply inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[.16em] text-blue-300; }
-/* The homepage no longer uses the old AI Marketing tagline badge. */
-.eyebrow:has(.lucide-sparkles) { display: none; }
-.eyebrow:has(.lucide-sparkles) + h1 { margin-top: 0; }
-.heading { font-family: "Space Grotesk", Inter, ui-sans-serif, system-ui, sans-serif; @apply tracking-[-.045em]; }
-.prose-article h2 { @apply mt-12 font-display text-3xl tracking-tight text-white; }
-.prose-article p { @apply mt-5 leading-8 text-gray-300; }
+body { margin: 0; background: #faf9f7; color: #172019; overflow-x: hidden; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+a, button, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button, a { outline-offset: 3px; }
+:focus-visible { outline: 2px solid #5f7b63; }
+::selection { background: #d8e7d5; color: #172019; }
+.section { @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10; }
+.heading { @apply font-display tracking-[-.055em]; }
+.eyebrow { @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-[#647765]; }
+.field { @apply w-full rounded-xl border border-[#d7d8d2] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-[#989e98] focus:border-[#627c66] focus:ring-2 focus:ring-[#dce9d8]; }
+.icon-button { @apply grid h-10 w-10 place-items-center rounded-full transition hover:bg-[#edf0ea]; }
+.primary-button { @apply inline-flex min-h-11 items-center justify-center rounded-full bg-[#172019] px-6 py-3 text-center text-xs font-bold tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-[#385140]; }
+.secondary-button { @apply inline-flex min-h-11 items-center justify-center rounded-full border border-[#cfd2cb] px-6 py-3 text-center text-xs font-bold tracking-wide transition hover:bg-white; }
+.page-hero { background: radial-gradient(circle at 90% 10%, rgba(184,205,181,.58), transparent 30%), linear-gradient(135deg,#edf2e9 0%,#faf9f7 55%); }
+.card { @apply rounded-2xl border border-[#e0e1db] bg-white; }
+.prose-article h2 { @apply mt-12 font-display text-3xl tracking-[-.04em] text-[#172019]; }
+.prose-article p { @apply mt-5 leading-8 text-[#5f695f]; }
+.prose-article ul { @apply mt-5 list-disc space-y-2 pl-5 leading-7 text-[#5f695f]; }
+summary::-webkit-details-marker { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

@@ -1,0 +1,3 @@
+export function LegalPage({ title, intro, sections }: { title: string; intro: string; sections: { title: string; body: string }[] }) {
+  return <><section className="page-hero"><div className="section py-16 sm:py-20"><span className="eyebrow">AI Manjeet client care</span><h1 className="heading mt-4 text-5xl sm:text-6xl">{title}</h1><p className="mt-5 max-w-2xl leading-7 text-[#5f695f]">{intro}</p><p className="mt-4 text-xs text-[#788178]">Last updated: October 4, 2026</p></div></section><article className="section max-w-4xl py-16">{sections.map((section) => <section className="mb-10" key={section.title}><h2 className="font-display text-3xl">{section.title}</h2><p className="mt-4 whitespace-pre-line leading-8 text-[#5f695f]">{section.body}</p></section>)}</article></>;
+}
