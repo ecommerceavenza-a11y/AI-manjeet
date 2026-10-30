@@ -1,16 +1,27 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { z } from "zod";
-
-const schema = z.object({ name: z.string().min(2), email: z.string().email(), phone: z.string().min(6), company: z.string().optional(), service: z.string().min(1), budget: z.string().min(1), message: z.string().min(10) });
-
+export const runtime = "nodejs";
+const schema = z.object({
+ name: z.string().trim().min(2).max(120), email: z.string().trim().email().max(254),
+ phone: z.string().trim().min(6).max(40), business: z.string().trim().min(1).max(200),
+ challenge: z.string().trim().min(1).max(200), budget: z.string().trim().min(1).max(100),
+ goal: z.string().trim().min(10).max(5000), _honey: z.string().max(0).optional(),
+});
 export async function POST(req: Request) {
-  try {
-    const data = schema.parse(await req.json());
-    if (process.env.SMTP_HOST) {
-      const transport = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: false, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
-      await transport.sendMail({ from: process.env.SMTP_USER, to: process.env.CONTACT_EMAIL || "rumbamanjit886@gmail.com", replyTo: data.email, subject: `New AI Manjeet enquiry — ${data.name}`, text: `Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nCompany: ${data.company || "—"}\nService: ${data.service}\nBudget: ${data.budget}\n\n${data.message}` });
-    }
-    return NextResponse.json({ success: true, message: "Thanks—we'll be in touch soon." }, { status: 201 });
-  } catch { return NextResponse.json({ success: false, message: "Please check the form and try again." }, { status: 400 }); }
+ const parsed = schema.safeParse(await req.json().catch(() => null));
+ if (!parsed.success) return NextResponse.json({success:false,message:"Please check your details."},{status:400});
+ const {SMTP_HOST,SMTP_USER,SMTP_PASS} = process.env;
+ if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return NextResponse.json({success:false,message:"Email delivery is temporarily unavailable."},{status:503});
+ const port=Number(process.env.SMTP_PORT || 465);
+ const transport=nodemailer.createTransport({host:SMTP_HOST,port,secure:port===465,requireTLS:port!==465,auth:{user:SMTP_USER,pass:SMTP_PASS},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:15000});
+ const data=parsed.data;
+ try {
+  const result=await transport.sendMail({from:SMTP_USER,to:process.env.CONTACT_EMAIL || "rumbamanjit886@gmail.com",replyTo:data.email,subject:"New AI Manjeet consultation request",text:`Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nBusiness: ${data.business}\nChallenge: ${data.challenge}\nBudget: ${data.budget}\n\nDesired result: ${data.goal}`});
+  if (!result.accepted?.length) throw new Error("Recipient not accepted");
+  return NextResponse.json({success:true},{status:201});
+ } catch {
+  console.error("Contact email delivery failed");
+  return NextResponse.json({success:false,message:"Email delivery is temporarily unavailable."},{status:502});
+ } finally { transport.close(); }
 }
