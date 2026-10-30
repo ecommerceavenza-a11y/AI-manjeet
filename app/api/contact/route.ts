@@ -20,8 +20,8 @@ export async function POST(req: Request) {
   const result=await transport.sendMail({from:SMTP_USER,to:process.env.CONTACT_EMAIL || "rumbamanjit886@gmail.com",replyTo:data.email,subject:"New AI Manjeet consultation request",text:`Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nBusiness: ${data.business}\nChallenge: ${data.challenge}\nBudget: ${data.budget}\n\nDesired result: ${data.goal}`});
   if (!result.accepted?.length) throw new Error("Recipient not accepted");
   return NextResponse.json({success:true},{status:201});
- } catch {
-  console.error("Contact email delivery failed");
+ } catch (error) {
+  const failure = error as { code?: string; responseCode?: number }; console.error("Contact email delivery failed", { code: failure.code, responseCode: failure.responseCode });
   return NextResponse.json({success:false,message:"Email delivery is temporarily unavailable."},{status:502});
  } finally { transport.close(); }
 }
