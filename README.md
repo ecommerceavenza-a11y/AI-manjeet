@@ -25,6 +25,6 @@ Deploy to Vercel and add the SMTP variables from `.env.example`. Replace the pro
 
 # Flodesk Audience integration
 
-The consultation form adds the visitor to Flodesk and emails the consultation details to the site owner. Configure `FLODESK_API_KEY` in the Vercel project’s Production environment before deploying this change. Create the key in Flodesk under Settings → API keys. Keep it server-side; never add it to a `NEXT_PUBLIC_` variable or commit it to Git.
+The consultation form uses the existing Flodesk inline form. Flodesk adds the visitor to the form's audience segment and redirects accepted submissions to `/thank-you`. The form also posts consultation details to `/api/contact`, which emails `rumbamanjit886@gmail.com` using the SMTP environment variables.
 
-Set `FLODESK_SEGMENT_ID` in Vercel only if you want these contacts assigned to a particular segment. Without it, Flodesk places them in All subscribers. New subscribers are created with double opt-in enabled, so they must confirm the Flodesk email before becoming active.
+No Flodesk API key is required. If double opt-in is enabled on the Flodesk form, new subscribers must confirm the email before becoming active.
