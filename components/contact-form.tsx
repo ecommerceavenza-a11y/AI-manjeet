@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 const formEndpoint = "/api/contact";
 
-type FormStatus = "idle" | "sending" | "sent" | "error";
+type FormStatus = "idle" | "sending" | "error";
 
 export function ContactForm() {
   const [status, setStatus] = useState<FormStatus>("idle");
@@ -49,18 +49,14 @@ export function ContactForm() {
       const succeeded = result.success === true || result.success === "true";
       if (!response.ok || !succeeded) throw new Error("Submission failed");
 
-      form.reset();
-      setStatus("sent");
+      window.location.assign("/thank-you");
+      return;
     } catch {
       setErrorMessage("Your request could not be sent right now. Your details are still here. Open an email or WhatsApp draft below, or try again later.");
       setStatus("error");
     } finally {
       window.clearTimeout(timeout);
     }
-  }
-
-  if (status === "sent") {
-    return <div className="grid min-h-[460px] place-items-center text-center" aria-live="polite"><div><CheckCircle2 className="mx-auto h-12 w-12 text-[#668267]" /><h3 className="mt-5 font-display text-3xl">Your request has been sent.</h3><p className="mx-auto mt-2 max-w-sm text-[#657065]">Thank you. I’ll review your details and reply within one working day to arrange your free consultation.</p><button type="button" onClick={() => setStatus("idle")} className="secondary-button mt-6">Send another request</button></div></div>;
   }
 
   return <form action="/api/contact" method="POST" onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
