@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 const formId = "6ae481726e4a3ea820397e1b";
-const containerId = `fd-form-${formId}`;
+const rootSelector = `.ff-${formId}`;
+const formAction = `https://form.flodesk.com/forms/${formId}/submit`;
+const formConfig = "eyJ0cmlnZ2VyIjp7Im1vZGUiOiJpbW1lZGlhdGVseSIsInZhbHVlIjowfSwib25TdWNjZXNzIjp7Im1vZGUiOiJyZWRpcmVjdCIsIm1lc3NhZ2UiOiIiLCJyZWRpcmVjdFVybCI6Imh0dHBzOi8vd3d3Lmdyb3d3aXRobWFuaml0LmNvbS90aGFuay15b3UifSwiY29pIjp0cnVlLCJzaG93Rm9yUmV0dXJuVmlzaXRvcnMiOnRydWUsIm5vdGlmaWNhdGlvbiI6dHJ1ZSwiZ2RwciI6eyJhY2NlcHRzTWFya2V0aW5nIjpmYWxzZSwicHJpdmFjeVBvbGljeSI6eyJlbmFibGVkIjpmYWxzZSwibWFuZGF0b3J5IjpmYWxzZX19LCJ0cmFja2luZ0NvbmZpZyI6eyJtZXRhUGl4ZWxJZCI6IiIsImNvb2tpZUJhbm5lckVuYWJsZWQiOmZhbHNlLCJnb29nbGVBbmFseXRpY3NJZCI6IiJ9fQ==";
 
 type FlodeskFunction = ((...args: unknown[]) => void) & { q?: unknown[][] };
 
@@ -17,6 +20,7 @@ declare global {
 export function ContactForm() {
   useEffect(() => {
     window.FlodeskObject = "fd";
+
     if (!window.fd) {
       const queue = ((...args: unknown[]) => {
         queue.q = queue.q || [];
@@ -26,42 +30,40 @@ export function ContactForm() {
     }
 
     const version = `?v=${Math.floor(Date.now() / 120000) * 60}`;
-    for (const [suffix, isModule] of [["mjs", true], ["js", false]] as const) {
-      const id = `flodesk-universal-${suffix}`;
-      if (document.getElementById(id)) continue;
+    const addScript = (id: string, source: string, module: boolean) => {
+      if (document.getElementById(id)) return;
       const script = document.createElement("script");
       script.id = id;
       script.async = true;
-      if (isModule) script.type = "module";
+      script.src = `${source}${version}`;
+      if (module) script.type = "module";
       else script.noModule = true;
-      script.src = `https://assets.flodesk.com/universal.${suffix}${version}`;
       document.head.appendChild(script);
-    }
+    };
 
-    window.fd("form", { formId, containerEl: `#${containerId}` });
+    addScript("flodesk-universal-module", "https://assets.flodesk.com/universal.mjs", true);
+    addScript("flodesk-universal-legacy", "https://assets.flodesk.com/universal.js", false);
+    window.fd("form:handle", { formId, rootEl: rootSelector });
   }, []);
 
-  function notifyOwner(event: React.FormEvent<HTMLDivElement>) {
-    const form = event.target;
-    if (!(form instanceof HTMLFormElement)) return;
-
-    const fields = Array.from(form.querySelectorAll<HTMLInputElement>("input.fd-form-control"))
-      .filter((input) => {
-        const rect = input.getBoundingClientRect();
-        return rect.width > 0 && rect.height > 0 && rect.x >= 0 && rect.x < window.innerWidth;
-      });
-    const [email, name, phone, business, website, message] = fields.map((field) => field.value.trim());
+  function notifyOwner(event: React.FormEvent<HTMLFormElement>) {
+    const form = event.currentTarget;
+    const value = (name: string) =>
+      form.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${name}"]`)?.value.trim() ?? "";
+    const email = value("email");
     if (!email || !email.includes("@")) return;
 
+    const website = value("fields.websiteOrFacebookLink");
+    const message = value("fields.anythingYouWantToSay");
     void fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       keepalive: true,
       body: JSON.stringify({
-        name: name || "New subscriber",
+        name: value("firstName") || "New subscriber",
         email,
-        phone: phone || "Not provided",
-        business: business || "Not provided",
+        phone: value("fields.whatsappMumber") || "Not provided",
+        business: value("fields.businessName") || "Not provided",
         challenge: "Flodesk consultation request",
         budget: "Not specified",
         goal: [website && `Website: ${website}`, message || "No additional details provided"].filter(Boolean).join("\n"),
@@ -70,7 +72,36 @@ export function ContactForm() {
     }).catch(() => {});
   }
 
-  return <div onSubmitCapture={notifyOwner}>
-    <div id={containerId} />
-  </div>;
+  return (
+    <div className={`flodesk-root ff-${formId}`} data-ff-el="root" data-ff-version="3" data-ff-type="inline" data-ff-name="ribbonBanner" data-ff-stage="default">
+      <div data-ff-el="config" data-ff-config={formConfig} hidden />
+      <form action={formAction} method="post" data-ff-el="form" onSubmitCapture={notifyOwner}>
+        <div className="flodesk-content fd-form-content grid gap-5 sm:grid-cols-2" data-ff-el="content">
+          <div className="contents" data-ff-el="fields">
+            <label className="fd-form-group text-sm font-medium">First name<input required maxLength={255} name="firstName" autoComplete="given-name" className="fd-form-control field mt-2" /></label>
+            <label className="fd-form-group text-sm font-medium">Email address<input required maxLength={255} type="email" name="email" autoComplete="email" className="fd-form-control field mt-2" /></label>
+            <label className="fd-form-group text-sm font-medium">WhatsApp number<input required maxLength={255} type="tel" name="fields.whatsappMumber" autoComplete="tel" className="fd-form-control field mt-2" /></label>
+            <label className="fd-form-group text-sm font-medium">Business name<input required maxLength={255} name="fields.businessName" autoComplete="organization" className="fd-form-control field mt-2" /></label>
+            <label className="fd-form-group text-sm font-medium sm:col-span-2">Website or Facebook link<input maxLength={255} type="text" name="fields.websiteOrFacebookLink" autoComplete="url" className="fd-form-control field mt-2" placeholder="https://" /></label>
+            <label className="fd-form-group text-sm font-medium sm:col-span-2">What would a good result look like?<textarea required maxLength={255} rows={5} name="fields.anythingYouWantToSay" className="fd-form-control field mt-2" placeholder="Tell me what you want to improve in the next 90 days." /></label>
+            <input type="text" maxLength={255} name="confirm_email_address" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+          </div>
+          <button type="submit" data-ff-el="submit" className="fd-btn primary-button sm:col-span-2">GET MY FREE CUSTOMIZED PLAN</button>
+          <p className="text-center text-xs text-[#718071] sm:col-span-2">By submitting, you agree to receive the consultation details and related emails from AI Manjeet. You can unsubscribe at any time.</p>
+        </div>
+
+        <div className="flodesk-success fd-form-success min-h-[460px] place-items-center text-center" data-ff-el="success" aria-live="polite"><div><CheckCircle2 className="mx-auto h-12 w-12 text-[#668267]" /><h3 className="mt-5 font-display text-3xl">You’re all set.</h3><p className="mx-auto mt-2 max-w-sm text-[#657065]">Check your inbox for the Flodesk confirmation email, then click the button inside it to activate your subscription.</p></div></div>
+        <div className="flodesk-error fd-form-error mt-5 items-start gap-2 rounded-xl bg-red-50 p-4 text-sm text-red-700" data-ff-el="error" role="alert"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /><p>Your details could not be submitted. Please check the fields and try again.</p></div>
+      </form>
+
+      <style jsx>{`
+        .flodesk-success,
+        .flodesk-error { display: none; }
+        .flodesk-root[data-ff-stage="success"] .flodesk-content { display: none; }
+        .flodesk-root[data-ff-stage="success"] .flodesk-success { display: grid; }
+        .flodesk-root[data-ff-stage="error"] .flodesk-error,
+        .flodesk-root .fd-has-error .flodesk-error { display: flex; }
+      `}</style>
+    </div>
+  );
 }
