@@ -20,4 +20,5 @@ export async function POST(req: Request) {
  } catch (error) {
   const failure = error as { code?: string; responseCode?: number }; console.error("Contact email delivery failed", { code: failure.code, responseCode: failure.responseCode });
   return NextResponse.json({success:false,message:"Email delivery is temporarily unavailable."},{status:502});
+ }
 }
