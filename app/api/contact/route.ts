@@ -15,7 +15,11 @@ export async function POST(req: Request) {
  const data=parsed.data;
  try {
   const brevoResponse = await fetch("https://api.brevo.com/v3/contacts", { method: "POST", headers: { accept: "application/json", "content-type": "application/json", "api-key": BREVO_API_KEY }, body: JSON.stringify({ email: data.email, listIds: [Number(BREVO_LIST_ID)], updateEnabled: true }) });
-  if (!brevoResponse.ok) throw new Error(`Brevo returned ${brevoResponse.status}`);
+  if (!brevoResponse.ok) {
+   const detail = await brevoResponse.text();
+   console.error("Brevo contact rejected", brevoResponse.status, detail);
+   return NextResponse.json({success:false,message:`Brevo rejected the contact (${brevoResponse.status}). ${detail.slice(0,240)}`},{status:502});
+  }
   return NextResponse.json({success:true},{status:201});
  } catch (error) {
   const failure = error as { code?: string; responseCode?: number }; console.error("Contact email delivery failed", { code: failure.code, responseCode: failure.responseCode });
