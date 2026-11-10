@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { z } from "zod";
 export const runtime = "nodejs";
 const schema = z.object({
@@ -11,21 +10,14 @@ const schema = z.object({
 export async function POST(req: Request) {
  const parsed = schema.safeParse(await req.json().catch(() => null));
  if (!parsed.success) return NextResponse.json({success:false,message:"Please check your details."},{status:400});
- const {SMTP_HOST,SMTP_USER,SMTP_PASS,BREVO_API_KEY,BREVO_LIST_ID} = process.env;
+ const {BREVO_API_KEY,BREVO_LIST_ID} = process.env;
  if (!BREVO_API_KEY || !BREVO_LIST_ID) return NextResponse.json({success:false,message:"Contact list delivery is temporarily unavailable."},{status:503});
- const port=Number(process.env.SMTP_PORT || 465);
- const transport=nodemailer.createTransport({host:SMTP_HOST,port,secure:port===465,requireTLS:port!==465,auth:{user:SMTP_USER,pass:SMTP_PASS},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:15000});
  const data=parsed.data;
  try {
-  const brevoResponse = await fetch("https://api.brevo.com/v3/contacts", { method: "POST", headers: { accept: "application/json", "content-type": "application/json", "api-key": BREVO_API_KEY }, body: JSON.stringify({ email: data.email, attributes: { FIRSTNAME: data.name, SMS: data.phone, BUSINESS: data.business, WEBSITE: data.goal }, listIds: [Number(BREVO_LIST_ID)], updateEnabled: true }) });
-  if (!brevoResponse.ok && brevoResponse.status !== 400) throw new Error(`Brevo returned ${brevoResponse.status}`);
-  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
-   const result=await transport.sendMail({from:SMTP_USER,to:process.env.CONTACT_EMAIL || "rumbamanjit886@gmail.com",replyTo:data.email,subject:"New AI Manjeet consultation request",text:`Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nBusiness: ${data.business}\nChallenge: ${data.challenge}\nBudget: ${data.budget}\n\nDesired result: ${data.goal}`});
-   if (!result.accepted?.length) throw new Error("Recipient not accepted");
-  }
+  const brevoResponse = await fetch("https://api.brevo.com/v3/contacts", { method: "POST", headers: { accept: "application/json", "content-type": "application/json", "api-key": BREVO_API_KEY }, body: JSON.stringify({ email: data.email, attributes: { FIRSTNAME: data.name, SMS: data.phone }, listIds: [Number(BREVO_LIST_ID)], updateEnabled: true }) });
+  if (!brevoResponse.ok) throw new Error(`Brevo returned ${brevoResponse.status}`);
   return NextResponse.json({success:true},{status:201});
  } catch (error) {
   const failure = error as { code?: string; responseCode?: number }; console.error("Contact email delivery failed", { code: failure.code, responseCode: failure.responseCode });
   return NextResponse.json({success:false,message:"Email delivery is temporarily unavailable."},{status:502});
- } finally { transport.close(); }
 }
