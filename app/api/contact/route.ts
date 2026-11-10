@@ -14,7 +14,7 @@ export async function POST(req: Request) {
  if (!BREVO_API_KEY || !BREVO_LIST_ID) return NextResponse.json({success:false,message:"Contact list delivery is temporarily unavailable."},{status:503});
  const data=parsed.data;
  try {
-  const brevoResponse = await fetch("https://api.brevo.com/v3/contacts", { method: "POST", headers: { accept: "application/json", "content-type": "application/json", "api-key": BREVO_API_KEY }, body: JSON.stringify({ email: data.email, attributes: { FIRSTNAME: data.name, SMS: data.phone }, listIds: [Number(BREVO_LIST_ID)], updateEnabled: true }) });
+  const brevoResponse = await fetch("https://api.brevo.com/v3/contacts", { method: "POST", headers: { accept: "application/json", "content-type": "application/json", "api-key": BREVO_API_KEY }, body: JSON.stringify({ email: data.email, listIds: [Number(BREVO_LIST_ID)], updateEnabled: true }) });
   if (!brevoResponse.ok) throw new Error(`Brevo returned ${brevoResponse.status}`);
   return NextResponse.json({success:true},{status:201});
  } catch (error) {
